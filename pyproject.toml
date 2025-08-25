@@ -1,0 +1,14 @@
+[project]
+name = "shabti"
+version = "0.1.0"
+description = "A helper for infra related tasks."
+readme = "README.md"
+license = "LICENSE"
+requires-python = ">=3.13"
+dependencies = ["click>=8.2.1"]
+
+[tool]
+uv.package = true
+
+[project.scripts]
+sb = "main:cli"
