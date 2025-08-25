@@ -3,7 +3,7 @@ name = "shabti"
 version = "0.1.0"
 description = "A helper for infra related tasks."
 readme = "README.md"
-license = "LICENSE"
+license = "Apache-2.0"
 requires-python = ">=3.13"
 dependencies = ["click>=8.2.1"]
 
