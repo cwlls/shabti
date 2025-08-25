@@ -1,3 +1,5 @@
+# code snippet lifted from Click documentation
+
 import importlib
 import click
 
