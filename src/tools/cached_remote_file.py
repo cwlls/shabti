@@ -31,8 +31,8 @@ class CachedRemoteFile(object):
             self.local_path = pathlib.Path(local_dir).joinpath(f"{pathlib.Path(remote_path).name}.json")
 
         # contents
-        self._etag = None
-        self._contents = None
+        self._etag = ""
+        self._contents = ""
         self._last_update = datetime.fromisoformat("1901-01-01T00:00:00.000Z")
 
         # setup local file if not exist
@@ -74,7 +74,7 @@ class CachedRemoteFile(object):
 
         self._save_file()
 
-    def contents(self) -> str | None:
+    def contents(self) -> str:
         asyncio.run(self._update_file())
         return self._contents
 
