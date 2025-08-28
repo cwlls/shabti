@@ -20,11 +20,24 @@ INVENTORY_FILE = inventory_conf.InventoryConf()
 
 @click.group(help="commands to help find and manipulate hosts", invoke_without_command=True)
 @click.pass_context
-def cli(ctx):
+@click.option("--owner", help="filter hosts by owner", is_flag=False)
+@click.option("--group", help="filter hosts by group", is_flag=False)
+def cli(ctx, owner, group):
     if ctx.invoked_subcommand is None:
-        for host in INVENTORY_FILE.hosts.values():
-            if host.has_ip:
-                click.echo(f"{host.name}: {host.ip}")
+        hosts = []
+        if owner:
+            banner = f"Host(s) owned by {owner}:"
+            hosts = [host for host in INVENTORY_FILE.hosts.values() if host.owner == owner]
+        elif group:
+            banner = f"Host(s) in group {group}:"
+            hosts = [host for host in INVENTORY_FILE.hosts.values() if group in host.groups]
+        else:
+            banner = "All hosts:"
+            hosts = [host for host in INVENTORY_FILE.hosts.values()]
+
+        click.echo(banner)
+        for host in hosts:
+            click.echo(f"  {host.name}")
 
 
 @cli.command()
