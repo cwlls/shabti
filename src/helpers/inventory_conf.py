@@ -117,12 +117,23 @@ class Host:
         return owner == self.owner
 
     def has_ip(self, ip_str: str) -> bool:
-        ipaddr = ipaddress.ip_address(ipaddr)
+        if not self.ip:
+            return False
+
+        ipaddr = ipaddress.ip_address(ip_str)
         return self.ip4_address == ipaddr or self.ip6_address == ipaddr
 
     def in_subnet(self, subnet_str: str) -> bool:
+        if not self.ip:
+            return False
+
         subnet = ipaddress.ip_network(subnet_str)
-        return self.ip4_address in subnet or self.ip6_address in subnet
+        if isinstance(subnet, ipaddress.IPv4Network):
+            return self.ip4_address in subnet
+        elif isinstance(subnet, ipaddress.IPv6Network):
+            return self.ip6_address in subnet
+        else:
+            return False
 
 
 class InventoryConf:

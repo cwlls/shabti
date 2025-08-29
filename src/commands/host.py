@@ -22,7 +22,9 @@ INVENTORY_FILE = inventory_conf.InventoryConf()
 @click.argument("keyword", required=False)
 @click.option("-o", "--owner", help="filter hosts by owner", is_flag=False)
 @click.option("-g", "--group", help="filter hosts by group", is_flag=False)
-def cli(keyword, owner, group):
+@click.option("--ip", help="filter hosts by IP", is_flag=False)
+@click.option("--subnet", help="filter hosts by subnet", is_flag=False)
+def cli(keyword, owner, group, ip, subnet):
     hosts = INVENTORY_FILE.hosts.values()
 
     # build up a filter stack
@@ -33,6 +35,10 @@ def cli(keyword, owner, group):
         filters.append(lambda h: h.owner == filter_owner.lower())
     if filter_group := group:
         filters.append(lambda h: filter_group.lower() in h.groups)
+    if filter_ip := ip:
+        filters.append(lambda h: h.has_ip(filter_ip))
+    if filter_subnet := subnet:
+        filters.append(lambda h: h.in_subnet(filter_subnet))
 
     # filter hosts using built up stack of filters
     if len(filters) > 0:
