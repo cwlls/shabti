@@ -20,14 +20,17 @@ INVENTORY_FILE = inventory_conf.InventoryConf()
 
 @click.group(help="commands to help find and manipulate hosts", invoke_without_command=True)
 @click.pass_context
-@click.option("--owner", help="filter hosts by owner", is_flag=False)
-@click.option("--group", help="filter hosts by group", is_flag=False)
-def cli(ctx, owner, group):
+@click.argument("keyword", required=False)
+@click.option("-o", "--owner", help="filter hosts by owner", is_flag=False)
+@click.option("-g", "--group", help="filter hosts by group", is_flag=False)
+def cli(ctx, keyword, owner, group):
     if ctx.invoked_subcommand is None:
         hosts = INVENTORY_FILE.hosts.values()
 
         # build up a filter stack
         filters = []
+        if filter_keyword := keyword or "":
+            filters.append(lambda h: filter_keyword.lower() in h.name)
         if filter_owner := owner:
             filters.append(lambda h: h.owner == filter_owner.lower())
         if filter_group := group:
