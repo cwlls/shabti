@@ -96,14 +96,8 @@ class Host:
         return f"{self.name}.{ASF_DOMAIN}"
 
     @property
-    def has_ip(self) -> bool:
-        if self.ip4_address or self.ip6_address:
-            return True
-        return False
-
-    @property
     def is_cname(self) -> bool:
-        if self.cname and not self.has_ip:
+        if self.cname and not self.ip:
             return True
         return False
 
@@ -116,11 +110,19 @@ class Host:
         else:
             return None
 
-    def has_group(self, grp: str) -> bool:
-        return grp in self.groups
+    def has_group(self, group: str) -> bool:
+        return group in self.groups
 
     def has_owner(self, owner: str) -> bool:
         return owner == self.owner
+
+    def has_ip(self, ip_str: str) -> bool:
+        ipaddr = ipaddress.ip_address(ipaddr)
+        return self.ip4_address == ipaddr or self.ip6_address == ipaddr
+
+    def in_subnet(self, subnet_str: str) -> bool:
+        subnet = ipaddress.ip_network(subnet_str)
+        return self.ip4_address in subnet or self.ip6_address in subnet
 
 
 class InventoryConf:
