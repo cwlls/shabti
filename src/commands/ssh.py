@@ -11,15 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import click
-from cmd_group import CmdGroup
+
+from tools import inventory_conf
+
+INVENTORY_FILE = inventory_conf.InventoryConf()
 
 
-@click.group(
-    cls=CmdGroup,
-    lazy_subcommands={"host": "commands.host.cli", "ssh": "commands.ssh.cli"},
-    help="Shabti, the ASFInfra helper",
-)
+@click.command(help="manage ssh hosts, connections, etc...")
 def cli():
-    pass
+    ## TEMP
+    user = "wells"
+    identity_file = "~/.ssh/id_rsa"
+    for host in INVENTORY_FILE.hosts.values():
+        click.echo(f"Host {host.name}")
+        click.echo(f"\tHostName {host.fqdn}")
+        click.echo(f"\tUser {user}")
+        click.echo(f"\tIdentityFile {identity_file}")
+        click.echo()
