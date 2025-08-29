@@ -49,6 +49,7 @@ class Host:
         self.ip6_address = None
         self.cname = ""
         self.extras = ""
+        self.ttl = None
 
         if "-win-" in name:
             self.groups.add("windows")
@@ -79,6 +80,8 @@ class Host:
                             for n in names:
                                 # print(f"ADDING ALTNAME: {n}")
                                 self.altnames.add(n)
+                        case "ttl":
+                            self.ttl = v
                         case _:
                             self.extras = f"{k}:{v}"
 
