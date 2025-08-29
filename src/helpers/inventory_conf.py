@@ -14,7 +14,6 @@
 import configparser
 import ipaddress
 from collections import deque
-from typing import List
 
 from cached_remote_file import CachedRemoteFile
 
@@ -178,18 +177,6 @@ class InventoryConf:
     def groups(self):
         """send back a 'clean' version of the group name (no 'group:' prefix)"""
         return [group[6:] for group in self._groups]
-
-    def from_group(self, grp: str) -> List[Host]:
-        return [host for host in self.hosts.values() if host.has_group(grp)]
-
-    def from_owner(self, owner: str) -> List[Host]:
-        return [host for host in self.hosts.values() if host.has_owner(owner)]
-
-    def has_ip(self, ip: str) -> List[Host]:
-        return [host for host in self.hosts.values() if host.has_ip(ip)]
-
-    def in_subnet(self, subnet: str) -> List[Host]:
-        return [host for host in self.hosts.values() if host.in_subnet(subnet)]
 
 
 if __name__ == "__main__":
