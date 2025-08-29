@@ -24,19 +24,23 @@ INVENTORY_FILE = inventory_conf.InventoryConf()
 @click.option("--group", help="filter hosts by group", is_flag=False)
 def cli(ctx, owner, group):
     if ctx.invoked_subcommand is None:
-        hosts = []
-        if owner:
-            banner = f"Host(s) owned by {owner}:"
-            hosts = [host for host in INVENTORY_FILE.hosts.values() if host.owner == owner]
-        elif group:
-            banner = f"Host(s) in group {group}:"
-            hosts = [host for host in INVENTORY_FILE.hosts.values() if group in host.groups]
-        else:
-            banner = "All hosts:"
-            hosts = [host for host in INVENTORY_FILE.hosts.values()]
+        hosts = INVENTORY_FILE.hosts.values()
 
-        click.echo(banner)
-        for host in hosts:
+        # build up a filter stack
+        filters = []
+        if filter_owner := owner:
+            filters.append(lambda h: h.owner == filter_owner.lower())
+        if filter_group := group:
+            filters.append(lambda h: filter_group.lower() in h.groups)
+
+        # filter hosts using built up stack of filters
+        if len(filters) > 0:
+            filtered_hosts = filter(lambda h: all(f(h) for f in filters), hosts)
+        else:
+            filtered_hosts = hosts
+
+        # display each of the possibly filtered hosts
+        for host in filtered_hosts:
             click.echo(f"  {host.name}")
 
 
