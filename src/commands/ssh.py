@@ -13,16 +13,18 @@
 # limitations under the License.
 import click
 
+from config import Config
 from helpers import inventory_conf
 
 INVENTORY_FILE = inventory_conf.InventoryConf()
+CFG = Config()
 
 
 @click.command(help="manage ssh hosts, connections, etc...")
 def cli():
     ## TEMP
-    user = "wells"
-    identity_file = "~/.ssh/id_rsa"
+    user = CFG.ssh["user"]
+    identity_file = CFG.ssh["key"]
     for host in INVENTORY_FILE.hosts.values():
         click.echo(f"Host {host.name}")
         click.echo(f"\tHostName {host.fqdn}")
