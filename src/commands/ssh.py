@@ -22,7 +22,6 @@ CFG = Config()
 
 @click.command(help="manage ssh hosts, connections, etc...")
 def cli():
-    ## TEMP
     user = CFG.ssh["user"]
     identity_file = CFG.ssh["key"]
     for host in INVENTORY_FILE.hosts.values():
