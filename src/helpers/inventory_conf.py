@@ -174,6 +174,12 @@ class InventoryConf:
     def from_owner(self, owner: str) -> List[Host]:
         return [host for host in self.hosts.values() if host.has_owner(owner)]
 
+    def has_ip(self, ip: str) -> List[Host]:
+        return [host for host in self.hosts.values() if host.has_ip(ip)]
+
+    def in_subnet(self, subnet: str) -> List[Host]:
+        return [host for host in self.hosts.values() if host.in_subnet(subnet)]
+
 
 if __name__ == "__main__":
     conf = InventoryConf()
