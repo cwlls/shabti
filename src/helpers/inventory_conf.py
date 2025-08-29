@@ -16,7 +16,7 @@ import ipaddress
 from collections import deque
 from typing import List
 
-from tools import cached_remote_file
+from cached_remote_file import CachedRemoteFile
 
 CONF_FILE = "https://svn.apache.org/repos/infra/infrastructure/trunk/dns/zones/inventory.conf"
 ASF_DOMAIN = "apache.org"
@@ -127,7 +127,7 @@ class InventoryConf:
     """a class to hold inventory.conf information"""
 
     def __init__(self):
-        self._file = cached_remote_file.CachedRemoteFile(CONF_FILE, local_subdir="shabti")
+        self._file = CachedRemoteFile(CONF_FILE, local_subdir="shabti")
 
         # setup a configparser object and parse in the config from a CachedRemoteFile object
         self.conf = configparser.ConfigParser()

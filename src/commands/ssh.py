@@ -13,7 +13,7 @@
 # limitations under the License.
 import click
 
-from tools import inventory_conf
+from helpers import inventory_conf
 
 INVENTORY_FILE = inventory_conf.InventoryConf()
 
