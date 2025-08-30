@@ -26,8 +26,11 @@ INVENTORY_FILE = inventory_conf.InventoryConf()
 @click.option("-i", "--ip", help="filter hosts by IP", is_flag=False)
 @click.option("-s", "--subnet", help="filter hosts by subnet", is_flag=False)
 def cli(hostname, keyword, owner, group, ip, subnet):
-    if hostname and hostname in INVENTORY_FILE.hosts.keys():
-        print_host(INVENTORY_FILE.hosts[hostname])
+    if hostname:
+        if hostname in INVENTORY_FILE.hosts.keys():
+            print_host(INVENTORY_FILE.hosts[hostname])
+        else:
+            click.echo("Host not found!")
     else:
         hosts = INVENTORY_FILE.hosts.values()
 
