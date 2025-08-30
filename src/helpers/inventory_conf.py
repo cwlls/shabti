@@ -19,6 +19,7 @@ from cached_remote_file import CachedRemoteFile
 
 CONF_FILE = "https://svn.apache.org/repos/infra/infrastructure/trunk/dns/zones/inventory.conf"
 ASF_DOMAIN = "apache.org"
+PNAP_IPS = ipaddress.IPv4Network("209.188.14.128/26")
 
 
 class Host:
@@ -81,6 +82,8 @@ class Host:
                                 self.altnames.add(n)
                         case "ttl":
                             self.ttl = v
+                        case "PNAP":
+                            self.ip4_address = self._macro_to_ip(PNAP_IPS, v)
                         case _:
                             self.extras = f"{k}:{v}"
 
@@ -89,6 +92,13 @@ class Host:
 
     def __repr__(self):
         return f"<Host: {self.name}>"
+
+    def _macro_to_ip(self, block: ipaddress.IPv4Network, num: str):
+        # IPv4Networks allow addressing of elements by index, but that index starts at
+        # the network address. The PNAP macro elements of inventory.conf start at index 0.
+        ip_elements = str(block.network_address).split(".")
+        ip_elements[3] = num
+        return ipaddress.IPv4Address(".".join(ip_elements))
 
     @property
     def fqdn(self) -> str:
@@ -135,6 +145,7 @@ class Host:
             return False
 
 
+# TBD: turn this into a singleton?
 class InventoryConf:
     """a class to hold inventory.conf information"""
 
@@ -184,8 +195,8 @@ if __name__ == "__main__":
     for _, host in conf.hosts.items():
         print("----")
         print(f"Host: {host.name}.{ASF_DOMAIN}")
-        if host.ipaddress:
-            print("IP:", host.ipaddress)
+        if host.ip:
+            print("IP:", host.ip)
         if host.owner:
             print("Owner:", host.owner)
         if host.cname:
