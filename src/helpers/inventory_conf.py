@@ -132,6 +132,19 @@ class Host:
         ipaddr = ipaddress.ip_address(ip_str)
         return self.ip4_address == ipaddr or self.ip6_address == ipaddr
 
+    def has_keyword(self, keyword: str) -> bool:
+        if keyword in self.name:
+            return True
+
+        for altname in self.altnames:
+            if keyword in altname:
+                return True
+
+        if keyword in self.cname:
+            return True
+
+        return False
+
     def in_subnet(self, subnet_str: str) -> bool:
         if not self.ip:
             return False

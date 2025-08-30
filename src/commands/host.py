@@ -37,7 +37,7 @@ def cli(hostname, keyword, owner, group, ip, subnet):
         # build up a filter stack
         filters = []
         if filter_keyword := keyword or "":
-            filters.append(lambda h: filter_keyword.lower() in h.name)
+            filters.append(lambda h: h.has_keyword(filter_keyword.lower()))
         if filter_owner := owner:
             filters.append(lambda h: h.owner == filter_owner.lower())
         if filter_group := group:
