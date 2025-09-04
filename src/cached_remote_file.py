@@ -22,61 +22,75 @@ STATE_DIR = pathlib.Path.home().joinpath(".local/state")
 
 
 class CachedRemoteFile(object):
-    def __init__(self, remote_path: str, local_dir: str | pathlib.Path = STATE_DIR, local_subdir: str | None = None):
-        # file paths
-        self.remote_path = remote_path
-        if local_subdir:
-            self.local_path = pathlib.Path(local_dir).joinpath(local_subdir, f"{pathlib.Path(remote_path).name}.json")
-        else:
-            self.local_path = pathlib.Path(local_dir).joinpath(f"{pathlib.Path(remote_path).name}.json")
 
-        # contents
-        self._etag = ""
-        self._contents = ""
-        self._last_update = datetime.fromisoformat("1901-01-01T00:00:00.000Z")
+    _instance = None
 
-        # setup local file if not exist
-        if not self.local_path.parent.exists():
-            self.local_path.parent.mkdir()
-        if not self.local_path.exists():
-            self._save_file()
+    def __new__(cls, remote_path: str, local_dir: str | pathlib.Path = STATE_DIR, local_subdir: str | None = None):
+        if cls._instance is None:
+            cls._instance = super(CachedRemoteFile, cls).__new__(cls)
 
-        self._load_file()
+            # file paths
+            cls.remote_path = remote_path
+            if local_subdir:
+                cls.local_path = pathlib.Path(local_dir).joinpath(
+                    local_subdir, f"{pathlib.Path(remote_path).name}.json"
+                )
+            else:
+                cls.local_path = pathlib.Path(local_dir).joinpath(f"{pathlib.Path(remote_path).name}.json")
 
-    def _load_file(self):
-        json_bits = json.loads(self.local_path.read_text())
-        self._etag = json_bits["etag"]
-        self._contents = str(json_bits["contents"])
-        self._last_update = datetime.fromisoformat(json_bits["last_update"])
+            # contents
+            cls._etag = ""
+            cls._contents = ""
+            cls._last_update = datetime.fromisoformat("1901-01-01T00:00:00.000Z")
 
-    def _save_file(self):
-        self.local_path.write_text(
-            json.dumps({"etag": self._etag, "contents": self._contents, "last_update": str(self._last_update)})
+            # setup local file if not exist
+            if not cls.local_path.parent.exists():
+                cls.local_path.parent.mkdir()
+            if not cls.local_path.exists():
+                cls._save_file()
+
+            cls._load_file()
+
+        return cls._instance
+
+    @classmethod
+    def _load_file(cls):
+        json_bits = json.loads(cls.local_path.read_text())
+        cls._etag = json_bits["etag"]
+        cls._contents = str(json_bits["contents"])
+        cls._last_update = datetime.fromisoformat(json_bits["last_update"])
+
+    @classmethod
+    def _save_file(cls):
+        cls.local_path.write_text(
+            json.dumps({"etag": cls._etag, "contents": cls._contents, "last_update": str(cls._last_update)})
         )
 
-    async def _update_file(self):
+    @classmethod
+    async def _update_file(cls):
         headers = {"Accept-Encoding": "Identity"}
-        if self._etag is not None:
-            headers["If-None-Match"] = self._etag
+        if cls._etag is not None:
+            headers["If-None-Match"] = cls._etag
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(
-                self.remote_path,
+                cls.remote_path,
                 ssl=False,
             ) as resp:
                 if resp.status == 200:
-                    self._etag = resp.headers.get("Etag")
-                    self._last_update = datetime.now().isoformat()
-                    self._contents = await resp.text()
+                    cls._etag = resp.headers.get("Etag")
+                    cls._last_update = datetime.now().isoformat()
+                    cls._contents = await resp.text()
                 elif resp.status == 304:
                     pass
                 else:
                     print(f"Error fetching file: {resp.status}")
 
-        self._save_file()
+        cls._save_file()
 
-    def contents(self) -> str:
-        asyncio.run(self._update_file())
-        return self._contents
+    @classmethod
+    def contents(cls) -> str:
+        asyncio.run(cls._update_file())
+        return cls._contents
 
 
 if __name__ == "__main__":
